@@ -21,7 +21,7 @@ sv_sign_config = SV('原神签到管理', pm=2)
 
 # 每日零点半执行米游社原神签到
 @scheduler.scheduled_job('cron', hour=SIGN_TIME[0], minute=SIGN_TIME[1])
-async def sign_at_night():
+async def signin_at_night():
     if gsconfig.get_config('SchedSignin').data:
         await send_daily_sign()
 
