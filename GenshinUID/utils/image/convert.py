@@ -4,7 +4,7 @@ from base64 import b64encode
 from typing import Union, overload
 
 import aiofiles
-from PIL import Image
+from PIL import Image, ImageFont
 
 
 @overload
@@ -53,3 +53,57 @@ async def convert_img(
         async with aiofiles.open(img, 'rb') as fp:
             img = await fp.read()
     return f'base64://{b64encode(img).decode()}'
+
+
+async def str_lenth(r: str, size: int, limit: int = 540) -> str:
+    result = ''
+    temp = 0
+    for i in r:
+        if i == '\n':
+            temp = 0
+            result += i
+            continue
+
+        if temp >= limit:
+            result += '\n' + i
+            temp = 0
+        else:
+            result += i
+
+        if i.isdigit():
+            temp += round(size / 10 * 6)
+        elif i == '/':
+            temp += round(size / 10 * 2.2)
+        elif i == '.':
+            temp += round(size / 10 * 3)
+        elif i == '%':
+            temp += round(size / 10 * 9.4)
+        else:
+            temp += size
+    return result
+
+
+def get_str_size(
+    r: str, font: ImageFont.FreeTypeFont, limit: int = 540
+) -> str:
+    result = ''
+    line = ''
+    for i in r:
+        if i == '\n':
+            result += f'{line}\n'
+            line = ''
+            continue
+
+        line += i
+        size, _ = font.getsize(line)
+        if size >= limit:
+            result += f'{line}\n'
+            line = ''
+    else:
+        result += line
+    return result
+
+
+def get_height(content: str, size: int) -> int:
+    line_count = content.count('\n')
+    return (line_count + 1) * size

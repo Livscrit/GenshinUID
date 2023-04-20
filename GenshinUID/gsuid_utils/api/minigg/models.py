@@ -328,6 +328,7 @@ Artifact = TypedDict(
     {
         'name': str,
         'rarity': List[str],
+        '1pc': str,
         '2pc': str,
         '4pc': str,
         'flower': PieceFlower,
@@ -357,3 +358,6 @@ class Material(TypedDict):
     source: List[str]
     images: MaterialImage
     version: str
+    # 下面两个当且仅当materialtype是xx突破素材的情况才有
+    dropdomain: str
+    daysofweek: List[str]

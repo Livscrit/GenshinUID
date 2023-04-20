@@ -5,6 +5,7 @@ MiniGG Enka 加速服务不在此模块内。
 '''
 from __future__ import annotations
 
+import json
 import warnings
 from enum import Enum
 from typing import Any, Dict, List, Union, Literal, Optional, cast, overload
@@ -166,9 +167,12 @@ async def minigg_request(
     }
     if match_categories:
         params['matchCategories'] = '1'
-    async with AsyncClient(base_url=MINIGG_URL, timeout=None) as client:
+    async with AsyncClient(base_url=MINIGG_URL, timeout=1.3) as client:
         req = await client.get(endpoint, params=params)
-        data = req.json()
+        try:
+            data = req.json()
+        except json.decoder.JSONDecodeError:
+            return -11
         if 'retcode' in data:
             retcode: int = data['retcode']
             return retcode

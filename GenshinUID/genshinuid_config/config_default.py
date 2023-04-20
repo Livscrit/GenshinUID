@@ -17,6 +17,11 @@ CONIFG_DEFAULT: Dict[str, GSC] = {
         '用于面板查询的随机图API',
         'https://genshin-res.cherishmoon.fun/img?name=',
     ),
+    'restart_command': GsStrConfig(
+        '重启命令',
+        '自定义使用gs重启时触发的控制台命令(看不懂勿改)',
+        'poetry run python',
+    ),
     'Ann_Groups': GsDictConfig(
         '推送公告群组',
         '原神公告推送群组',
@@ -95,5 +100,10 @@ CONIFG_DEFAULT: Dict[str, GSC] = {
         '固定背景',
         '开启后部分功能的背景图将固定为特定背景',
         False,
+    ),
+    'PicWiki': GsBoolConfig(
+        '图片版WIKI',
+        '开启后支持的WIKI功能将转为图片版',
+        True,
     ),
 }

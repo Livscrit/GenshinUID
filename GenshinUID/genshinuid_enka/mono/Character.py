@@ -1,9 +1,11 @@
 from copy import deepcopy
 from typing import Dict, List, Tuple, Optional
 
+from httpx import ConnectTimeout
 from gsuid_core.logger import logger
 
 from .Power import sp_prop
+from ..etc.beta_weapon import beta_weapons
 from ..etc.get_buff_list import get_buff_list
 from ...genshinuid_config.gs_config import gsconfig
 from ..etc.status_change import EXTRA_CHAR_LIST, STATUS_CHAR_LIST
@@ -124,14 +126,22 @@ class Character:
         # 创造一个假武器
         if weapon:
             weapon_info = deepcopy(baseWeaponInfo)
-            weapon_raw_data = await get_weapon_info(weapon)
+            try:
+                weapon_raw_data = await get_weapon_info(weapon)
+            except ConnectTimeout:
+                weapon_raw_data = -1
             if isinstance(weapon_raw_data, int) or isinstance(
                 weapon_raw_data, List
             ):
-                weapon_raw_data = await convert_ambr_to_weapon(weapon)
+                if weapon in beta_weapons:
+                    weapon_id = beta_weapons[weapon]
+                else:
+                    return {}
+                weapon_raw_data = await convert_ambr_to_weapon(weapon_id)
                 if not weapon_raw_data:
                     return {}
                 else:
+                    weapon_info['weaponStar'] = int(weapon_raw_data['rarity'])
                     weapon_level_data = weapon_raw_data
                     weapon_info['weaponLevel'] = 90
                     weapon_info['promoteLevel'] = 6
@@ -253,8 +263,12 @@ class Character:
         if char_name == '旅行者':
             char_name_covert = '荧'
 
-        char_raw = await get_character_info(name=char_name_covert)
         self.char_id = await name_to_avatar_id(char_name_covert)
+        try:
+            char_raw = await get_character_info(name=char_name_covert)
+        except ConnectTimeout:
+            char_raw = -1
+
         if not self.char_id and char_name != '旅行者':
             return {}
         if isinstance(char_raw, int) or isinstance(char_raw, List):
