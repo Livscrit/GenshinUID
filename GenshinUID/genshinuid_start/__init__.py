@@ -3,6 +3,7 @@ import threading
 
 from gsuid_core.logger import logger
 
+from ..utils.database import get_sqla
 from ..genshinuid_resource import startup
 from ..genshinuid_xkdata import draw_xk_abyss_img
 from ..genshinuid_help.draw_help_card import draw_help_img
@@ -12,6 +13,7 @@ from ..utils.resource.generate_char_card import create_all_char_card
 
 async def all_start():
     try:
+        get_sqla('TEMP')
         await draw_help_img()
         await startup()
         await create_all_char_card()
