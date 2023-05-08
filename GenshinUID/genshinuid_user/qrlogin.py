@@ -130,7 +130,9 @@ async def qrcode_login(bot: Bot, ev: Event, user_id: str) -> str:
             im = '请求失败, 请稍后再试...'
             return await send_msg(im)
 
-        uid_bind = await sqla.get_bind_uid(user_id)
+        uid_bind = await sqla.get_bind_uid(
+            user_id
+        ) or await sqla.get_bind_sruid(user_id)
         # 没有在gsuid绑定uid的情况
         if not uid_bind:
             logger.warning('game_token获取失败')

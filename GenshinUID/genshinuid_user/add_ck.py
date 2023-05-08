@@ -2,9 +2,10 @@ from pathlib import Path
 from typing import Dict, List
 from http.cookies import SimpleCookie
 
+from gsuid_core.utils.error_reply import UID_HINT
+
 from ..utils.mys_api import mys_api
 from ..utils.database import get_sqla
-from ..utils.error_reply import UID_HINT
 
 pic_path = Path(__file__).parent / 'pic'
 id_list = [
@@ -222,10 +223,11 @@ async def _deal_ck(bot_id: str, mes: str, user_id: str) -> str:
     except Exception:
         pass
 
-    if not uid:
-        return f'你的米游社账号{account_id}尚未绑定原神账号,请前往米游社操作！'
+    if uid:
+        await sqla.refresh_cache(uid)
+    if sr_uid:
+        await sqla.refresh_cache(sr_uid)
 
-    await sqla.refresh_cache(uid)
     if is_add_stoken:
         im_list.append(f'添加Stoken成功,stuid={account_id},stoken={stoken}')
     await sqla.insert_user_data(

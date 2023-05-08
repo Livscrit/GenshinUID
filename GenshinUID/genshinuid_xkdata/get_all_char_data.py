@@ -1,4 +1,6 @@
 import json
+import random
+import asyncio
 from typing import Dict, List, Tuple, Optional
 
 import aiofiles
@@ -17,18 +19,34 @@ from ..utils.map.name_covert import name_to_avatar_id, alias_to_char_name
 
 all_char_info_path = DATA_PATH / 'all_char_info.json'
 abyss_rank_path = DATA_PATH / 'abyss_rank.json'
+abyss_info_path = DATA_PATH / 'abyss_info.json'
 
 
 async def save_all_char_info():
     all_char_info = await get_akasha_all_char_info()
     async with aiofiles.open(all_char_info_path, 'w') as f:
-        await f.write(str(all_char_info))
+        await f.write(json.dumps(all_char_info))
 
 
 async def save_all_abyss_rank():
     abyss_rank = await get_akasha_abyss_rank()
+    await asyncio.sleep(random.randint(0, 3))
+    abyss_info = await get_akasha_abyss_rank(True)
+
     async with aiofiles.open(abyss_rank_path, 'w') as f:
-        await f.write(str(abyss_rank))
+        await f.write(json.dumps(abyss_rank))
+
+    async with aiofiles.open(abyss_info_path, 'w') as f:
+        await f.write(json.dumps(abyss_info))
+
+
+async def get_abyssinfo_data():
+    if not abyss_info_path.exists():
+        await save_all_abyss_rank()
+
+    async with aiofiles.open(abyss_info_path, 'r') as f:
+        abyss_info: Dict[str, Dict[str, str]] = json.loads(await f.read())
+    return abyss_info
 
 
 async def get_akasha_char_data(
@@ -52,7 +70,7 @@ async def get_akasha_char_data(
     if not char_id:
         return None
 
-    _char_id = char_id.lstrip('100000').strip('0')
+    _char_id = char_id.lstrip('1').lstrip('0')
     if _char_id not in all_char_info:
         return None
 
